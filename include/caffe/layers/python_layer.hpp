@@ -24,9 +24,9 @@ class PythonLayer : public Layer<Dtype> {
         && !Caffe::multiprocess()) {
       LOG(FATAL) << "PythonLayer does not support CLI Multi-GPU, use train.py";
     }
-    self_.attr("param_str_") = bp::str(
+    self_.attr("param_str") = bp::str(
         this->layer_param_.python_param().param_str());
-    self_.attr("phase") = static_cast<int>(this->phase_);
+    // self_.attr("phase") = static_cast<int>(this->phase_);
     self_.attr("setup")(bottom, top);
   }
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
