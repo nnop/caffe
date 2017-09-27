@@ -308,7 +308,7 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 149 (last added: smooth_l1_loss_param)
+// LayerParameter next available layer-specific ID: 150 (last added: rpn_data_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -407,6 +407,60 @@ message LayerParameter {
   optional WindowDataParameter window_data_param = 129;
   optional ROIPoolingParameter roi_pooling_param = 147;
   optional SmoothL1LossParameter smooth_l1_loss_param = 148;
+  optional RpnDataParameter rpn_data_param = 150;
+}
+
+message RpnDataParameter {
+  // Specify the data source.
+  repeated string source = 1;
+  // append root_folder to locate images
+  repeated string root_folder = 2;
+  // Specify the batch size.
+  optional uint32 batch_size = 3 [default = 128];
+  // Specify the #im in a mini-batch.
+  optional uint32 ims_per_batch = 4 [default = 2];
+  // Minimum image size
+  optional uint32 scale = 5 [default = 600];
+  // Maximum image size
+  optional uint32 max_size = 6 [default = 1000];
+  // Foreground (object) overlap threshold
+  optional float fg_thresh = 7 [default = 0.5];
+  // Background (non-object) overlap threshold
+  optional float bg_thresh = 8 [default = 0.5];
+  // Fraction of batch that should be foreground objects
+  optional float fg_fraction = 9 [default = 0.5];
+  // feat_stride for RPN , like sliding windows
+  optional uint32 feat_stride_w = 10 [default = 16];
+  optional uint32 feat_stride_h = 11 [default = 16];
+  // Specify the anchors source
+  optional string anchors = 12 [default = "anchors.txt"];
+  // Specify flip or not
+  optional uint32 flip = 13 [default = 0];
+  // Background anchors loss weights
+  optional float bg_weight = 14 [default = 0.7];
+  // Fraction of batch that should be foreground objects
+  optional uint32 rand_seed = 15 [default = 0];
+    // mean_value should be 0 || 1 || 3 /size
+  optional float mean_value = 16;
+    // Save the output map file [length feature_map_width feature_map_height ]
+  optional string source_outmap = 17 [default = "Output_map.txt"];
+  optional string stds_means_file = 18 [default = "Stds_Means.txt"];
+  optional uint32 rcptfld_wid = 19;
+  optional uint32 rcptfld_hei = 20;
+  enum ProposalMethod {
+      PROPOSAL_STRIDE = 0;
+      PROPOSAL_RCPTFLD= 1;
+  }
+  optional ProposalMethod proposal_method = 21 [ default = PROPOSAL_STRIDE ];
+  enum IoUMethod {
+      IOU_GT = 0;
+      IOU_GT_RCPT = 1;
+      IOU_GT_ANCHOR = 2;
+  }
+  optional IoUMethod iou_method = 22 [ default = IOU_GT_RCPT ];
+  optional bool debug = 23 [ default = false ];
+  // number of images used to compute means/stds
+  optional uint32 mean_image_num = 24 [ default = 1000 ];
 }
 
 // Message that stores parameters used to apply transformation
