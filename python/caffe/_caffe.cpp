@@ -470,6 +470,14 @@ BOOST_PYTHON_MODULE(_caffe) {
     .add_property("count",    static_cast<int (Blob<Dtype>::*)() const>(
         &Blob<Dtype>::count))
     .def("reshape",           bp::raw_function(&Blob_Reshape))
+#ifndef CPU_ONLY
+    .add_property("_gpu_data_ptr",
+        reinterpret_cast<uintptr_t (Blob<Dtype>::*)()>(
+          &Blob<Dtype>::mutable_gpu_data))
+    .add_property("_gpu_diff_ptr",
+        reinterpret_cast<uintptr_t (Blob<Dtype>::*)()>(
+          &Blob<Dtype>::mutable_gpu_diff))
+#endif
     .add_property("data",     bp::make_function(&Blob<Dtype>::mutable_cpu_data,
           NdarrayCallPolicies()))
     .add_property("diff",     bp::make_function(&Blob<Dtype>::mutable_cpu_diff,
@@ -483,7 +491,8 @@ BOOST_PYTHON_MODULE(_caffe) {
     .def("setup", &Layer<Dtype>::LayerSetUp)
     .def("reshape", &Layer<Dtype>::Reshape)
     .add_property("phase", bp::make_function(&Layer<Dtype>::phase))
-    .add_property("type", bp::make_function(&Layer<Dtype>::type));
+    .add_property("type", bp::make_function(&Layer<Dtype>::type))
+    .add_property("name", bp::make_function(&Layer<Dtype>::name));
   BP_REGISTER_SHARED_PTR_TO_PYTHON(Layer<Dtype>);
 
   bp::class_<SolverParameter>("SolverParameter", bp::no_init)

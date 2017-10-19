@@ -41,6 +41,7 @@ class Layer {
     : layer_param_(param) {
       // Set phase and copy blobs (if there are any).
       phase_ = param.phase();
+      name_ = param.name();
       if (layer_param_.blobs_size() > 0) {
         blobs_.resize(layer_param_.blobs_size());
         for (int i = 0; i < layer_param_.blobs_size(); ++i) {
@@ -292,12 +293,15 @@ class Layer {
   }
 
   inline Phase phase() { return phase_; }
+  inline string name() { return name_;  }
 
  protected:
   /** The protobuf that stores the layer parameters */
   LayerParameter layer_param_;
   /** The phase: TRAIN or TEST */
   Phase phase_;
+  /** The layer name */
+  string name_;
   /** The vector that stores the learnable parameters as a set of blobs. */
   vector<shared_ptr<Blob<Dtype> > > blobs_;
   /** Vector indicating whether to compute the diff of each param blob. */
