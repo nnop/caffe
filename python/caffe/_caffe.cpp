@@ -498,6 +498,7 @@ BOOST_PYTHON_MODULE(_caffe) {
   bp::class_<SolverParameter>("SolverParameter", bp::no_init)
     .add_property("max_iter", &SolverParameter::max_iter)
     .add_property("display", &SolverParameter::display)
+    .add_property("snapshot", &SolverParameter::snapshot)
     .add_property("layer_wise_reduce", &SolverParameter::layer_wise_reduce);
   bp::class_<LayerParameter>("LayerParameter", bp::no_init);
 
