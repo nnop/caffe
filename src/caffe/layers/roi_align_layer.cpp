@@ -50,16 +50,19 @@ void ROIAlignLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   int num_rois = bottom[1]->num();
   int batch_size = bottom[0]->num();
   Dtype* top_data = top[0]->mutable_cpu_data();
+  int top_count = top[0]->count();
+  caffe_set(top_count, Dtype(0.), top_data);
   int* argmax_data = max_idx_.mutable_cpu_data();
+  caffe_set(top_count, -1, argmax_data);
 
   for (int n = 0; n < num_rois; ++n) {
     int roi_batch_ind = bottom_rois[0];
+    CHECK_GE(roi_batch_ind, 0);
+    CHECK_LT(roi_batch_ind, batch_size);
     Dtype roi_start_w = bottom_rois[1] * spatial_scale_;
     Dtype roi_start_h = bottom_rois[2] * spatial_scale_;
     Dtype roi_end_w = bottom_rois[3] * spatial_scale_;
     Dtype roi_end_h = bottom_rois[4] * spatial_scale_;
-    CHECK_GE(roi_batch_ind, 0);
-    CHECK_LT(roi_batch_ind, batch_size);
 
     // Force malformed ROIs to be 1x1
     int roi_width = max(static_cast<int>(roi_end_w - roi_start_w + 1), 1);
@@ -69,8 +72,8 @@ void ROIAlignLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     Dtype bin_size_w = static_cast<Dtype>(roi_width)
                        / static_cast<Dtype>(pooled_width_);
 
-    const Dtype* batch_data = bottom[0]->cpu_data() + bottom[0]->offset(roi_batch_ind);
     for (int c = 0; c < channels_; ++c) {
+      const Dtype* batch_data = bottom_data + bottom[0]->offset(roi_batch_ind, c);
       // channel c bottom_data
       for (int ph = 0; ph < pooled_height_; ++ph) {
         for (int pw = 0; pw < pooled_width_; ++pw) {
@@ -114,7 +117,7 @@ void ROIAlignLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
               Dtype alpha = (hlow == hhigh) ? static_cast<Dtype>(0.5) : (h - hlow) / (hhigh - hlow);
               Dtype beta = (wleft == wright) ? static_cast<Dtype>(0.5) : (w - wleft) / (wright - wleft);
               Dtype value = (1 - alpha) * (1 - beta) * batch_data[topleft] + alpha * (1 - beta) * batch_data[bottomleft]
-                                  + (1 - alpha) * beta * batch_data[topright] + alpha * beta * bottom_data[bottomright];
+                                  + (1 - alpha) * beta * batch_data[topright] + alpha * beta * batch_data[bottomright];
 
               if (value > maxval) {
                 maxval = value;
